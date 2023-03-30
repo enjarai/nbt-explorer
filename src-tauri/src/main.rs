@@ -5,7 +5,7 @@ use std::{io::BufReader, fs::File};
 
 use flate2::read::GzDecoder;
 use nbt::tag::{Tag, TagError};
-use tauri::api::dialog::blocking::FileDialogBuilder;
+use tauri::{api::dialog::blocking::FileDialogBuilder, State};
 
 mod nbt;
 mod impls;
@@ -16,8 +16,10 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
+struct LoadedTag(Option<Tag>);
+
 #[tauri::command] // I know this is broken right now, have to implement serialization for Tag
-fn load_file() -> Result<Tag, Option<String>> {
+async fn load_file(state: State<'_, LoadedTag>) -> Result<Tag, Option<String>> {
     match FileDialogBuilder::new().pick_file() {
         Some(file) => {
             let file = File::open(file).map_err(|_e| Some("Reading file".into()))?;
@@ -35,7 +37,11 @@ fn load_file() -> Result<Tag, Option<String>> {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet, load_file])
+        .manage(LoadedTag(None))
+        .invoke_handler(tauri::generate_handler![
+            greet, 
+            load_file,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
