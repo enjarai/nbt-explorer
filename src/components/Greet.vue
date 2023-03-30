@@ -8,7 +8,11 @@ const name = ref("");
 async function greet() {
   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
   greetMsg.value = await invoke("greet", { name: name.value });
-  const tag = await invoke("load_file");
+  invoke("load_file").then((res) => {
+    greetMsg.value = res as string;
+  }).catch((err) => {
+    alert(err);
+  })
 }
 </script>
 
