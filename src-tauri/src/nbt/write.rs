@@ -5,6 +5,7 @@ use byteorder::{BigEndian, WriteBytesExt};
 use super::tag::{Tag, TagError};
 
 impl Tag {
+    #[allow(dead_code)]
     pub fn write<T: Write>(&self, buf: &mut T) -> Result<(), TagError> {
         match self {
             Tag::CompoundTag(value) => {

@@ -77,6 +77,7 @@ fn list_fmt<T: Display>(value: &Vec<T>, f: &mut Formatter<'_>) -> std::fmt::Resu
     write!(f, "]")
 }
 
+#[allow(dead_code)]
 impl Tag {
     pub fn count_elements(&self, counter: &mut usize) {
         match self {
