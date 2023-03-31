@@ -50,31 +50,31 @@ impl<'a> Visitor<'a> for TagVisitor {
     fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
     where
         A: serde::de::MapAccess<'a> {
-        let mut tag_type = None;
-        let mut value = None;
+        let mut tag_type: Option<String> = None;
         while let Some(key) = map.next_key::<String>()? {
             match key.as_str() {
                 "type" => tag_type = Some(map.next_value()?),
-                "value" => value = Some(map.next_value()?),
-                _ => return Err(serde::de::Error::unknown_field(key.as_str(), &["type", "value"])),
+                "value" => match tag_type {
+                    Some(tag_type) => match tag_type.as_str() {
+                        "byte" => return Ok(Tag::ByteTag(map.next_value()?)),
+                        "short" => return Ok(Tag::ShortTag(map.next_value()?)),
+                        "int" => return Ok(Tag::IntTag(map.next_value()?)),
+                        "long" => return Ok(Tag::LongTag(map.next_value()?)),
+                        "float" => return Ok(Tag::FloatTag(map.next_value()?)),
+                        "double" => return Ok(Tag::DoubleTag(map.next_value()?)),
+                        "byte_array" => return Ok(Tag::ByteArray(map.next_value()?)),
+                        "string" => return Ok(Tag::StringTag(map.next_value()?)),
+                        "list" => return Ok(Tag::ListTag(map.next_value()?)),
+                        "compound" => return Ok(Tag::CompoundTag(map.next_value()?)),
+                        "int_array" => return Ok(Tag::IntArray(map.next_value()?)),
+                        "long_array" => return Ok(Tag::LongArray(map.next_value()?)),
+                        _ => return Err(serde::de::Error::unknown_variant(&tag_type, &["byte", "short", "int", "long", "float", "double", "byte_array", "string", "list", "compound", "int_array", "long_array"])),
+                    },
+                    None => return Err(serde::de::Error::missing_field("type")),
+                },
+                _ => return Err(serde::de::Error::unknown_field(&key, &["type", "value"])),
             }
         }
-        let tag_type = tag_type.ok_or_else(|| serde::de::Error::missing_field("type"))?;
-        let value = value.ok_or_else(|| serde::de::Error::missing_field("value"))?;
-        match tag_type.as_str() {
-            "byte" => Ok(Tag::ByteTag(value)),
-            "short" => Ok(Tag::ShortTag(value)),
-            "int" => Ok(Tag::IntTag(value)),
-            "long" => Ok(Tag::LongTag(value)),
-            "float" => Ok(Tag::FloatTag(value)),
-            "double" => Ok(Tag::DoubleTag(value)),
-            "byte_array" => Ok(Tag::ByteArray(value)),
-            "string" => Ok(Tag::StringTag(value)),
-            "list" => Ok(Tag::ListTag(value)),
-            "compound" => Ok(Tag::CompoundTag(value)),
-            "int_array" => Ok(Tag::IntArray(value)),
-            "long_array" => Ok(Tag::LongArray(value)),
-            _ => Err(serde::de::Error::unknown_variant(tag_type.as_str(), &["byte", "short", "int", "long", "float", "double", "byte_array", "string", "list", "compound", "int_array", "long_array"])),
-        }
+        Err(serde::de::Error::missing_field("type"))
     }
 }
