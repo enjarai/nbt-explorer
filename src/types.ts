@@ -20,7 +20,6 @@ export type CompoundTag = {
 }
 
 export type SimpleTag = NumberTag | StringTag;
-export type ListLikeTag = ListTag | NumberArrayTag;
 export type Tag = NumberTag | StringTag | ListTag | CompoundTag | NumberArrayTag;
 
 export const isSimpleTag = (tag: Tag): SimpleTag | null => {
@@ -30,8 +29,15 @@ export const isSimpleTag = (tag: Tag): SimpleTag | null => {
     return null;
 }
 
-export const isListTag = (tag: Tag): ListLikeTag | null => {
-    if (tag.type === "list" || tag.type === "byte_array" || tag.type === "int_array" || tag.type === "long_array") {
+export const isListTag = (tag: Tag): ListTag | null => {
+    if (tag.type === "list") {
+        return tag;
+    }
+    return null;
+}
+
+export const isNumberArrayTag = (tag: Tag): NumberArrayTag | null => {
+    if (tag.type === "byte_array" || tag.type === "int_array" || tag.type === "long_array") {
         return tag;
     }
     return null;

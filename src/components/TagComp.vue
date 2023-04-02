@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { Tag, isSimpleTag, isListTag, isCompoundTag } from "../types";
+import { Tag, isSimpleTag, isListTag, isNumberArrayTag, isCompoundTag } from "../types";
 import TagIcon from "./TagIcon.vue";
 
 const props = defineProps<{
@@ -30,6 +30,7 @@ const name = props.name;
 
 const simpleTag = isSimpleTag(tag);
 const listTag = isListTag(tag);
+const numberArrayTag = isNumberArrayTag(tag);
 const compoundTag = isCompoundTag(tag);
 </script>
 
